@@ -1,0 +1,10 @@
+{
+  "user": {
+    "email": "testuser@example.com",
+    "password": "m1K@82d97y",
+    "name": "Test User",
+    "dob": "1998-08-25"
+  },
+  "activities": ["Football", "Music", "Coding", "Painting"],
+  "essayText": "I love cars..."
+}

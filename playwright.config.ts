@@ -7,8 +7,8 @@ export default defineConfig({
   use: {
     browserName: 'chromium',
     headless: false,
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    screenshot: 'on',
+    video: 'on',
     baseURL: 'https://apply.mykaleidoscope.com',
   },
   testDir: './tests',

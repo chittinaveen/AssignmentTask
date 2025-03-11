@@ -3,14 +3,15 @@
   "version": "1.0.0",
   "description": "SDET Interview Playwright Automation",
   "scripts": {
-    "test": "npx playwright test",
-    "install": "npm install"
+    "register_test": "npx playwright test tests/registration.spec.ts",
+    "Application_test": "npx playwright test tests/application.spec.ts"
   },
   "dependencies": {
     "dotenv": "^16.0.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.38.0",
+    "@types/node": "^22.13.10",
     "typescript": "^5.1.6"
   }
 }

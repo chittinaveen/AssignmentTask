@@ -1,51 +1,68 @@
-import { Page } from '@playwright/test';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
+import { Page, expect } from '@playwright/test';
 
 export class ApplicationPage {
-  private page: Page;
-  private locators = {
-    nextButton: '#next',
-    uploadButton: '#upload-transcript',
-    nameField: '#name',
-    dobField: '#dob',
-    activityFields: ['#activity1', '#activity2', '#activity3', '#activity4'],
-    essaySelectors: {
-      cars: '#essay-cars',
-      animals: '#essay-animals',
-      school: '#essay-school',
-      other: '#essay-other'
-    },
-    essayBox: '#essay-box',
-    submitButton: '#submit'
-  };
+    private page: Page;
 
-  constructor(page: Page) {
-    this.page = page;
-  }
-
-  async fillPage1() {
-    await this.page.fill(this.locators.nameField, process.env.USER_NAME || '');
-    await this.page.fill(this.locators.dobField, process.env.USER_DOB || '');
-    await this.page.click(this.locators.nextButton);
-  }
-
-  async fillPage2(activities: string[]) {
-    for (let i = 0; i < this.locators.activityFields.length; i++) {
-      await this.page.fill(this.locators.activityFields[i], activities[i]);
+    constructor(page: Page) {
+        this.page = page;
     }
-    await this.page.click(this.locators.nextButton);
-  }
 
-  async uploadTranscript() {
-    await this.page.setInputFiles(this.locators.uploadButton, 'uploads/MySchoolTranscript.pdf');
-    await this.page.click(this.locators.nextButton);
-  }
+    async startApplication() {
+        await this.page.click('text=Start Application');
+    }
 
-  async fillEssays() {
-    await this.page.click(this.locators.essaySelectors.cars);
-    await this.page.fill(this.locators.essayBox, 'I love cars...');
-    await this.page.click(this.locators.submitButton);
-  }
+    async fillPersonalDetails(name: string, dob: string, address: string) {
+        await this.page.fill('input[name="fullName"]', name);
+        await this.page.fill('input[name="dob"]', dob);
+        await this.page.fill('input[name="address"]', address);
+        await this.page.click('text=Next');
+    }
+
+    async validateExtracurricularError() {
+        await this.page.click('text=Next');
+        await expect(this.page.locator('text=At least 2 extracurricular activities are required')).toBeVisible();
+    }
+
+    async fillExtracurricularActivities(activities: string[]) {
+        for (let i = 0; i < activities.length; i++) {
+            await this.page.fill(`input[name="activity${i + 1}"]`, activities[i]);
+        }
+        await this.page.click('text=Next');
+    }
+
+    async uploadTranscript(filePath: string) {
+        await this.page.setInputFiles('input[type="file"]', filePath);
+        await this.page.click('text=Next');
+    }
+
+    async selectEssays(essayTypes: string[]) {
+        for (const essay of essayTypes) {
+            await this.page.check(`input[value="${essay}"]`);
+        }
+    }
+
+    async fillEssays(essays : { [key: string]: string }) {
+        for (const [type, text] of Object.entries(essays)) {
+            await this.page.fill(`textarea[name="essay${type}"]`, text);
+        }
+        await this.page.click('text=Next');
+    }
+
+    async validateReviewPage(name: string, essayContents: string[]) {
+        await expect(this.page.locator(`text=${name}`)).toBeVisible();
+        for (const essay of essayContents) {
+            await expect(this.page.locator(`text=${essay}`)).toBeVisible();
+        }
+    }
+
+    async submitApplication() {
+        await this.page.click('text=Submit Application');
+        await this.page.waitForNavigation();
+        return this.page.url();
+    }
+
+    async validateNoEditsAllowed(url: string) {
+        await this.page.goto(url);
+        await expect(this.page.locator('text=Editing is not allowed')).toBeVisible();
+    }
 }

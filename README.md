@@ -10,7 +10,9 @@ This project automates the **Kaleidoscope Applicant Application** process using 
    ```
 2. Run the tests:
    ```sh
-   npx playwright test
+   npm run register_test
+
+   npm run Application_test
    ```
 
 ## 📂 Project Structure
